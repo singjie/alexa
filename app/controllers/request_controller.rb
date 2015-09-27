@@ -1,3 +1,4 @@
+require 'net/http'
 class RequestController < ApplicationController
   skip_before_action :verify_authenticity_token
   def index
@@ -7,7 +8,9 @@ class RequestController < ApplicationController
     name = params["request"]["intent"]["name"]
     puts "Name #{name}"
 
-    if name == "GetLuckyNumbers"
+    @message = "london bridge"
+
+    if name == "Haze"
       return haze_intent
     end
 
@@ -22,6 +25,29 @@ class RequestController < ApplicationController
   end
 
   def haze_intent
+    result = Net::HTTP.get(URI.parse('http://sghaze.herokuapp.com/'))
 
+    json = JSON.parse(result)
+
+    values = []
+    values << json["North"].to_i
+    values << json["South"].to_i
+    values << json["East"].to_i
+    values << json["West"].to_i
+
+    average = values.sum / values.size.to_f
+
+    description = "hazardous"
+    if average <= 50
+      description = "good"
+    elsif average <= 100
+      description = "moderate"
+    elsif average <= 200
+      description = "unhealthy"
+    elsif average <= 300
+      description = "very unhealthy"
+    end
+
+    @message = "The PSI is now #{average.round}, in the #{description} range."
   end
 end
