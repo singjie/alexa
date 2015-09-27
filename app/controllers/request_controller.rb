@@ -1,4 +1,5 @@
 require 'net/http'
+require 'mechanize'
 class RequestController < ApplicationController
   skip_before_action :verify_authenticity_token
   def index
@@ -6,12 +7,18 @@ class RequestController < ApplicationController
     #puts request.body.read
     #puts params["request"]["intent"]
     name = params["request"]["intent"]["name"]
-    puts "Name #{name}"
 
-    @message = "london bridge"
+    intent = params["request"]["intent"]
+
+    @message = ""
 
     if name == "Haze"
-      return haze_intent
+      return ios_review_intent(intent)
+      return haze_intent(intent)
+    elsif name == "Pregnancy"
+      return pregnancy_intent(intent)
+    elsif name = "Review"
+      return ios_review_intent(intent)
     end
 
     slots = params["request"]["intent"]["slots"]
@@ -24,7 +31,7 @@ class RequestController < ApplicationController
     #puts request.env
   end
 
-  def haze_intent
+  def haze_intent intent
     result = Net::HTTP.get(URI.parse('http://sghaze.herokuapp.com/'))
 
     json = JSON.parse(result)
@@ -49,5 +56,33 @@ class RequestController < ApplicationController
     end
 
     @message = "The PSI is now #{average.round}, in the #{description} range."
+  end
+
+  def pregnancy_intent intent
+    @message = "Baby is growing."
+  end
+
+  def ios_review_intent intent
+    mechanize = Mechanize.new
+    page = mechanize.get('http://appreviewtimes.com/')
+
+    slots = intent["slots"]
+
+    days = page.search(".average").first.children.text
+    platform = "iOS"
+
+    slots.each do |key, value|
+      puts "key:#{key}"
+      if key != "platform"
+        next
+      end
+
+      if value.lowercase == "mac"
+        days = page.search(".average").last.children.text
+        platform = "Mac"
+      end
+    end
+
+    @message = "Review times for #{platform} is #{days}."
   end
 end
