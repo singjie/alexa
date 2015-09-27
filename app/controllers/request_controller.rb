@@ -21,7 +21,7 @@ class RequestController < ApplicationController
     #puts request.env
   end
 
-  private def haze_intent
-    
+  def haze_intent
+
   end
 end
