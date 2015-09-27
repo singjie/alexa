@@ -13,7 +13,6 @@ class RequestController < ApplicationController
     @message = ""
 
     if name == "Haze"
-      return ios_review_intent(intent)
       return haze_intent(intent)
     elsif name == "Pregnancy"
       return pregnancy_intent(intent)
@@ -59,7 +58,9 @@ class RequestController < ApplicationController
   end
 
   def pregnancy_intent intent
-    @message = "Baby is growing."
+    date = Date.strptime("14/12/2015", "%d/%m/%Y")
+    week = 40 - (date.cweek - Date.today.cweek)
+    @message = "Baby is now #{week} weeks."
   end
 
   def ios_review_intent intent
@@ -73,7 +74,7 @@ class RequestController < ApplicationController
 
     slots.each do |key, value|
       puts "key:#{key}"
-      if key != "platform"
+      if key != "Platform"
         next
       end
 
