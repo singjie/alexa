@@ -1,5 +1,6 @@
 require 'net/http'
 require 'mechanize'
+require 'numbers_and_words'
 class RequestController < ApplicationController
   skip_before_action :verify_authenticity_token
   def index
@@ -105,12 +106,18 @@ class RequestController < ApplicationController
         end
       end
 
-      @message = "First Prize #{result["wn1"]};
-      Second Prize #{result["wn2"]};
-      Third Prize #{result["wn3"]}"
+      @message = "First Prize #{humanize(result["wn1"])};
+      Second Prize #{humanize(result["wn2"])};
+      Third Prize #{humanize(result["wn3"])}"
     end
 
     # puts json
+  end
+
+  def humanize number
+    number.each do |n|
+      n.to_i.to_words
+    end
   end
 
   def bank_account_intent intent

@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.0'
-
+gem 'numbers_and_words'
 gem 'mechanize'
 gem 'pg'
 # Use SCSS for stylesheets
