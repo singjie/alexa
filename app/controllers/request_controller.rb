@@ -115,9 +115,13 @@ class RequestController < ApplicationController
   end
 
   def humanize number
-    number.each do |n|
-      n.to_i.to_words
-    end
+    string = []
+    string << (number/1000).to_words
+    string << ((number/100) %10).to_words
+    string << ((number/10) %10).to_words
+    string << (number%10).to_words
+
+    string.join(" ")
   end
 
   def bank_account_intent intent
