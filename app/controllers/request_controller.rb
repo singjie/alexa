@@ -3,12 +3,9 @@ require 'mechanize'
 class RequestController < ApplicationController
   skip_before_action :verify_authenticity_token
   def index
-    #puts "YOU REQUESTED FOR ME?"
-    #puts request.body.read
-    #puts params["request"]["intent"]
-    name = params["request"]["intent"]["name"]
-
     intent = params["request"]["intent"]
+
+    name = intent["name"]
 
     @message = ""
 
@@ -16,18 +13,10 @@ class RequestController < ApplicationController
       return haze_intent(intent)
     elsif name == "Pregnancy"
       return pregnancy_intent(intent)
-    elsif name = "Review"
+    elsif name == "Review"
       return ios_review_intent(intent)
     end
-
-    slots = params["request"]["intent"]["slots"]
-
-    slots.each do |key, value|
-      puts "key:#{key}"
-      puts "value:#{value}"
-    end
-    #puts params["session"]
-    #puts request.env
+    #http://gsgresult.appspot.com/api/4d/?afterdrawnum=3800
   end
 
   def haze_intent intent
@@ -74,7 +63,7 @@ class RequestController < ApplicationController
 
     slots.each do |key, value|
       puts "key:#{key}"
-      if key != "Platform"
+      if key != "platform"
         next
       end
 
@@ -85,5 +74,15 @@ class RequestController < ApplicationController
     end
 
     @message = "Review times for #{platform} is #{days}."
+  end
+
+  def bank_account_intent intent
+
+  end
+
+  def singapore_population_intent intent
+    mechanize = Mechanize.new
+    page = mechanize.get("http://beta.data.gov.sg/dataset/f60283b8-ded9-4499-88c1-737a1c3499c0/resource/b7652e8c-2df9-401b-9123-994d63773316/download/population.csv")
+
   end
 end
