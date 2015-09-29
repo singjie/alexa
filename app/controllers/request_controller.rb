@@ -15,8 +15,10 @@ class RequestController < ApplicationController
       return pregnancy_intent(intent)
     elsif name == "Review"
       return ios_review_intent(intent)
+    elsif name == "Lottery"
+      return lottery_review_intent(intent)
     end
-    #http://gsgresult.appspot.com/api/4d/?afterdrawnum=3800
+    #
   end
 
   def haze_intent intent
@@ -63,17 +65,52 @@ class RequestController < ApplicationController
 
     slots.each do |key, value|
       puts "key:#{key}"
-      if key != "platform"
+      if key != "Platform"
         next
       end
 
-      if value.lowercase == "mac"
+      if value["value"] == "mac"
         days = page.search(".average").last.children.text
         platform = "Mac"
       end
     end
 
     @message = "Review times for #{platform} is #{days}."
+  end
+
+  def lottery_review_intent intent
+    result = Net::HTTP.get(URI.parse('http://gsgresult.appspot.com/api/4d/?afterdrawnum=3800'))
+
+    json = JSON.parse(result)
+
+    slots = intent["slots"]
+    slots.each do |key, value|
+      puts "key:#{key}"
+      if key != "date"
+        next
+      end
+
+      date = Date.strptime(value["value"], "%Y-%m-%d")
+
+      date_string = date.strftime("%b %-d, %Y")
+
+      result = {}
+
+      json.each do |draw|
+        draw_date = draw["drawDate"]
+
+        if draw_date.starts_with?(date_string)
+          result = draw
+          break
+        end
+      end
+
+      @message = "First Prize #{result["wn1"]};
+      Second Prize #{result["wn2"]};
+      Third Prize #{result["wn3"]}"
+    end
+
+    # puts json
   end
 
   def bank_account_intent intent
