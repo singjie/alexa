@@ -141,13 +141,13 @@ class RequestController < ApplicationController
       else
         @@lights &= 0b110
       end
-    elsif colour == "green"
+    elsif colour == "yellow"
       if on_off == "on"
         @@lights |= 0b010
       else
         @@lights &= 0b101
       end
-    elsif colour == "yellow"
+    elsif colour == "green"
       if on_off == "on"
         @@lights |= 0b100
       else
