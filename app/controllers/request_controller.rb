@@ -114,9 +114,9 @@ class RequestController < ApplicationController
         end
       end
 
-      @message = "First Prize #{humanize(result["wn1"])};
-      Second Prize #{humanize(result["wn2"])};
-      Third Prize #{humanize(result["wn3"])}"
+      @message = "First Prize, #{humanize(result["wn1"])};
+      Second Prize, #{humanize(result["wn2"])};
+      Third Prize, #{humanize(result["wn3"])}"
     end
 
     # puts json
@@ -147,7 +147,7 @@ class RequestController < ApplicationController
       else
         @@lights &= 0b101
       end
-    elsif colour == "blue"
+    elsif colour == "yellow"
       if on_off == "on"
         @@lights |= 0b100
       else
@@ -155,7 +155,7 @@ class RequestController < ApplicationController
       end
     end
 
-    @message = "Please check the lights! #{humanize(@@lights)}"
+    @message = "Please check the lights!"
   end
 
   def humanize number
