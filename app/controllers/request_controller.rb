@@ -155,7 +155,7 @@ class RequestController < ApplicationController
       end
     end
 
-    @message = "Please check the lights! #{@@lights}"
+    @message = "Please check the lights! #{humanize(@@lights)}"
   end
 
   def humanize number
