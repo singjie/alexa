@@ -3,6 +3,12 @@ require 'mechanize'
 require 'numbers_and_words'
 class RequestController < ApplicationController
   skip_before_action :verify_authenticity_token
+  @@lights = 0
+
+  def lights
+    render :text => @@lights
+  end
+
   def index
     intent = params["request"]["intent"]
 
@@ -18,6 +24,8 @@ class RequestController < ApplicationController
       return ios_review_intent(intent)
     elsif name == "Lottery"
       return lottery_review_intent(intent)
+    elsif name == "Lights"
+      return lights_intent(intent)
     end
     #
   end
@@ -114,6 +122,42 @@ class RequestController < ApplicationController
     # puts json
   end
 
+  def lights_intent intent
+    slots = intent["slots"]
+
+    colour = ""
+    on_off = ""
+    slots.each do |key, value|
+      if key == "switch"
+        on_off = value["value"]
+      elsif key == "colour"
+        colour = value["value"]
+      end
+    end
+
+    if colour == "red"
+      if on_off == "on"
+        @@lights |= 0b001
+      else
+        @@lights &= 0b110
+      end
+    elsif colour == "green"
+      if on_off == "on"
+        @@lights |= 0b010
+      else
+        @@lights &= 0b101
+      end
+    elsif colour == "blue"
+      if on_off == "on"
+        @@lights |= 0b100
+      else
+        @@lights &= 0b011
+      end
+    end
+
+    @message = "Please check the lights! #{@@lights}"
+  end
+
   def humanize number
     string = []
     string << (number/1000).to_words
@@ -121,7 +165,7 @@ class RequestController < ApplicationController
     string << ((number/10) %10).to_words
     string << (number%10).to_words
 
-    string.join(" ")
+    string.join(", ")
   end
 
   def bank_account_intent intent
