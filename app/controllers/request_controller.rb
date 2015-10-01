@@ -16,6 +16,8 @@ class RequestController < ApplicationController
 
     if name == "Haze"
       return haze_intent(intent)
+    elsif name == "GetRandomNumber"
+      return random_intent(intent)
     elsif name == "Pregnancy"
       return pregnancy_intent(intent)
     elsif name == "Review"
