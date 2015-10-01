@@ -14,7 +14,7 @@ class RequestController < ApplicationController
   def temp
     value = params["value"]
 
-    @@temp = value.to_i/10.0
+    @@temp = value.to_i/100
 
     render :text => @@temp
   end
