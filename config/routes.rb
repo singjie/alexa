@@ -1,6 +1,5 @@
 Rails.application.routes.draw do
   post 'request' => 'request#index'
-  get 'lights' => 'request#lights'
   get 'temp/:value' => 'request#temp'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

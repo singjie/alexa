@@ -3,13 +3,8 @@ require 'mechanize'
 require 'numbers_and_words'
 class RequestController < ApplicationController
   skip_before_action :verify_authenticity_token
-  @@lights = 0
 
   @@temp = 0
-
-  def lights
-    render :text => @@lights
-  end
 
   def temp
     value = params["value"]
@@ -34,8 +29,6 @@ class RequestController < ApplicationController
       return ios_review_intent(intent)
     elsif name == "Lottery"
       return lottery_review_intent(intent)
-    elsif name == "Lights"
-      return lights_intent(intent)
     elsif name == "Temperature"
       return temperature_intent(intent)
     end
@@ -82,18 +75,14 @@ class RequestController < ApplicationController
     slots = intent["slots"]
 
     days = page.search(".average").first.children.text
-    platform = "iOS"
+    platform = object_for_key("Platform", slots)
 
-    slots.each do |key, value|
-      puts "key:#{key}"
-      if key != "Platform"
-        next
-      end
+    if platform.nil?
+      platform = "iOS"
+    end
 
-      if value["value"] == "mac"
-        days = page.search(".average").last.children.text
-        platform = "Mac"
-      end
+    if platform == "mac"
+      days = page.search(".average").last.children.text
     end
 
     @message = "Review times for #{platform} is #{days}."
@@ -105,73 +94,26 @@ class RequestController < ApplicationController
     json = JSON.parse(result)
 
     slots = intent["slots"]
-    slots.each do |key, value|
-      puts "key:#{key}"
-      if key != "date"
-        next
-      end
 
-      date = Date.strptime(value["value"], "%Y-%m-%d")
+    date_request = object_for_key("date", slots)
 
-      date_string = date.strftime("%b %-d, %Y")
+    date = Date.strptime(date_request, "%Y-%m-%d")
+    date_string = date.strftime("%b %-d, %Y")
 
-      result = {}
+    result = {}
 
-      json.each do |draw|
-        draw_date = draw["drawDate"]
+    json.each do |draw|
+      draw_date = draw["drawDate"]
 
-        if draw_date.starts_with?(date_string)
-          result = draw
-          break
-        end
-      end
-
-      @message = "First Prize, #{humanize(result["wn1"])};
-      Second Prize, #{humanize(result["wn2"])};
-      Third Prize, #{humanize(result["wn3"])}"
-    end
-
-    # puts json
-  end
-
-  def lights_intent intent
-    slots = intent["slots"]
-
-    colour = ""
-    on_off = ""
-    slots.each do |key, value|
-      if key == "switch"
-        on_off = value["value"]
-      elsif key == "colour"
-        colour = value["value"]
+      if draw_date.starts_with?(date_string)
+        result = draw
+        break
       end
     end
 
-    if colour == "red"
-      if on_off == "on"
-        @@lights |= 0b001
-      else
-        @@lights &= 0b110
-      end
-    elsif colour == "yellow"
-      if on_off == "on"
-        @@lights |= 0b010
-      else
-        @@lights &= 0b101
-      end
-    elsif colour == "green"
-      if on_off == "on"
-        @@lights |= 0b100
-      else
-        @@lights &= 0b011
-      end
-    end
-
-    @message = "Please check the lights!"
-  end
-
-  def temperature_intent intent
-    @message = "Temperature of the room is now #{@@temp.to_words} degree celcius."
+    @message = "First Prize, #{humanize(result["wn1"])};
+    Second Prize, #{humanize(result["wn2"])};
+    Third Prize, #{humanize(result["wn3"])}"
   end
 
   def humanize number
@@ -182,5 +124,21 @@ class RequestController < ApplicationController
     string << (number%10).to_words
 
     string.join(", ")
+  end
+
+  def object_for_key key, slots
+    slots.each do |slot_key, value|
+      if key != slot_key
+        next
+      end
+
+      return value["value"]
+    end
+
+    nil
+  end
+
+  def temperature_intent intent
+    @message = "Temperature of the room is now #{@@temp.to_words} degree celcius."
   end
 end
