@@ -5,8 +5,18 @@ class RequestController < ApplicationController
   skip_before_action :verify_authenticity_token
   @@lights = 0
 
+  @@temp = 0
+
   def lights
     render :text => @@lights
+  end
+
+  def temp
+    value = params["value"]
+
+    @@temp = value.to_i/10.0
+
+    render :text => @@temp
   end
 
   def index
@@ -26,6 +36,8 @@ class RequestController < ApplicationController
       return lottery_review_intent(intent)
     elsif name == "Lights"
       return lights_intent(intent)
+    elsif name == "Temperature"
+      return temperature_intent(intent)
     end
     #
   end
@@ -158,6 +170,10 @@ class RequestController < ApplicationController
     @message = "Please check the lights!"
   end
 
+  def temperature_intent intent
+    @message = "Temperature of the room is now #{@@temp.to_words} degree celcius."
+  end
+
   def humanize number
     string = []
     string << (number/1000).to_words
@@ -166,15 +182,5 @@ class RequestController < ApplicationController
     string << (number%10).to_words
 
     string.join(", ")
-  end
-
-  def bank_account_intent intent
-
-  end
-
-  def singapore_population_intent intent
-    mechanize = Mechanize.new
-    page = mechanize.get("http://beta.data.gov.sg/dataset/f60283b8-ded9-4499-88c1-737a1c3499c0/resource/b7652e8c-2df9-401b-9123-994d63773316/download/population.csv")
-
   end
 end
