@@ -37,7 +37,7 @@ class RequestController < ApplicationController
 
 
   def random_intent intent
-    @message "Random number is #{rand(10).to_words}"
+    @message = "Random number is #{rand(10).to_words}"
   end
 
 
