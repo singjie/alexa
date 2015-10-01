@@ -1,18 +1,11 @@
 require 'net/http'
 require 'mechanize'
 require 'numbers_and_words'
+
 class RequestController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   @@temp = 0
-
-  def temp
-    value = params["value"]
-
-    @@temp = value.to_i/100
-
-    render :text => @@temp
-  end
 
   def index
     intent = params["request"]["intent"]
@@ -32,8 +25,25 @@ class RequestController < ApplicationController
     elsif name == "Temperature"
       return temperature_intent(intent)
     end
-    #
   end
+
+
+
+
+
+
+
+
+  def random_intent intent
+    @message "Random number is #{rand(10).to_words}"
+  end
+
+
+
+
+
+
+
 
   def haze_intent intent
     result = Net::HTTP.get(URI.parse('http://sghaze.herokuapp.com/'))
@@ -62,11 +72,27 @@ class RequestController < ApplicationController
     @message = "The PSI is now #{average.round}, in the #{description} range."
   end
 
+
+
+
+
+
+
+
+
   def pregnancy_intent intent
     date = Date.strptime("14/12/2015", "%d/%m/%Y")
     week = 40 - (date.cweek - Date.today.cweek)
     @message = "Baby is now #{week} weeks."
   end
+
+
+
+
+
+
+
+
 
   def ios_review_intent intent
     mechanize = Mechanize.new
@@ -87,6 +113,14 @@ class RequestController < ApplicationController
 
     @message = "Review times for #{platform} is #{days}."
   end
+
+
+
+
+
+
+
+
 
   def lottery_review_intent intent
     result = Net::HTTP.get(URI.parse('http://gsgresult.appspot.com/api/4d/?afterdrawnum=3800'))
@@ -126,6 +160,24 @@ class RequestController < ApplicationController
     string.join(", ")
   end
 
+
+
+
+
+
+
+
+
+  def temp
+    value = params["value"]
+    @@temp = value.to_i/100
+    render :text => @@temp
+  end
+
+  def temperature_intent intent
+    @message = "Temperature of the room is now #{@@temp.to_words} degree celcius."
+  end
+
   def object_for_key key, slots
     slots.each do |slot_key, value|
       if key != slot_key
@@ -138,7 +190,4 @@ class RequestController < ApplicationController
     nil
   end
 
-  def temperature_intent intent
-    @message = "Temperature of the room is now #{@@temp.to_words} degree celcius."
-  end
 end

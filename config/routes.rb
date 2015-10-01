@@ -1,6 +1,5 @@
 Rails.application.routes.draw do
   post 'request' => 'request#index'
-  get 'temp/:value' => 'request#temp'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
@@ -55,4 +54,5 @@ Rails.application.routes.draw do
   #     # (app/controllers/admin/products_controller.rb)
   #     resources :products
   #   end
+  get 'temp/:value' => 'request#temp'
 end
