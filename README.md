@@ -1,6 +1,8 @@
 #Alexa
 
-This project is meant for integration with Amazon's Echo - Alexa
+This project is meant for integration with Amazon's Echo - Alexa.
+
+For more information about Amazon's Skill Kit - https://developer.amazon.com/public/solutions/alexa/alexa-skills-kit/getting-started-guide  
 
 ## The following skills are available:
 
